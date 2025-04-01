@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sheet View</title>
+    <style>
+        /* Prevent layout shifts */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+            border: none;
+            table-layout: fixed;  /* Prevent column width changes */
+        }
+        
+        th, td {
+            border: 1px solid #e1e1e1;
+            padding: 8px 12px;
+            text-align: left;
+            height: 40px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: auto;  /* Let table-layout: fixed handle widths */
+            background: white;
+        }
+        
+        th {
+            background-color: #f3f3f3;
+            color: #5f6368;
+            font-weight: 500;
+            border-bottom: 2px solid #d4d4d4;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            height: 48px;
+        }
+
+        /* Column separators */
+        td:not(:last-child), th:not(:last-child) {
+            border-right: 1px solid #e1e1e1;
+        }
+
+        /* Row separators */
+        tr:not(:last-child) td {
+            border-bottom: 1px solid #e1e1e1;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .editable {
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 100px;
+            position: relative;
+            padding: 8px 12px;
+        }
+
+        .editable:hover {
+            background-color: #f3f7fd;
+        }
+
+        .editable.editing {
+            padding: 0;
+            outline: 2px solid #4285f4;
+            outline-offset: -2px;
+            background: white;
+            border-color: transparent;
+            box-shadow: 0 2px 6px rgba(66, 133, 244, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .editable.editing:hover {
+            background: white;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e1e1e1;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 900;
+            height: 48px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            transform: translateZ(0);  /* Prevent z-index issues */
+            will-change: transform;    /* Optimize animations */
+        }
+
+        .sheet-tab {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px 4px 0 0;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            color: #5f6368;
+            height: 32px;
+            transition: background-color 0.2s;
+            user-select: none;  /* Prevent text selection */
+        }
+
+        .sheet-tab.active {
+            background: #f1f3f4;
+            color: #1a73e8;
+        }
+
+        .sheet-tab:hover {
+            background: #f1f3f4;
+        }
+
+        .sheet-menu {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            display: none;
+            min-width: 150px;
+            z-index: 1100;
+        }
+
+        .sheet-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sheet-menu-item:hover {
+            background: #f5f5f5;
+        }
+
+        .sheet-menu-item.danger {
+            color: #dc3545;
+        }
+
+        .new-sheet-btn {
+            padding: 8px 12px;
+            color: #1a73e8;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 32px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .new-sheet-btn:hover {
+            background: #e8f0fe;
+        }
+
+        /* Table container */
+        .table-container {
+            margin: 20px;
+            margin-bottom: 80px;
+            overflow-x: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 0;
+            border: 1px solid #e1e1e1;
+            flex: 1;
+            position: relative;
+            height: calc(100vh - 120px);  /* Account for margins and bottom bar */
+        }
+
+        .button {
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .delete-button {
+            background-color: transparent;
+            border: 1px solid #d93025;
+            color: #d93025;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .delete-button:hover {
+            background-color: #d93025;
+            color: white;
+        }
+
+        /* Update the table cell styling */
+        td:last-child {
+            text-align: center;
+            padding: 4px 8px;
+        }
+
+        /* Column-specific styles */
+        td:nth-child(1) {  /* Test Case ID */
+            color: #1967d2;
+            font-weight: 500;
+        }
+
+        td:nth-child(6) {  /* Priority */
+            font-weight: 500;
+        }
+
+        td:nth-child(8) {  /* Status */
+            font-weight: 500;
+        }
+
+        td:nth-child(10) {  /* Test Result */
+            font-weight: 500;
+        }
+
+        /* Input styling */
+        input {
+            font-family: inherit;
+            font-size: inherit;
+            padding: 8px 12px;
+            border: none;
+            outline: none;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            box-sizing: border-box;
+            color: #202124;
+        }
+
+        /* Color menu styles */
+        .color-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            padding: 8px;
+            display: none;
+            z-index: 1000;
+            transform: translateZ(0);  /* Force GPU acceleration */
+        }
+
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            margin: 4px;
+            cursor: pointer;
+            border: 1px solid #e1e1e1;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        /* Predefined cell background colors */
+        .bg-red {
+            background-color: #fce8e8 !important;
+            color: #d93025;
+        }
+
+        .bg-green {
+            background-color: #e6f4ea !important;
+            color: #137333;
+        }
+
+        .bg-yellow {
+            background-color: #fef7e0 !important;
+            color: #b06000;
+        }
+
+        .bg-blue {
+            background-color: #e8f0fe !important;
+            color: #1967d2;
+        }
+
+        /* Set specific widths for columns to prevent jumping */
+        th:nth-child(1) { width: 100px; }  /* Test Case ID */
+        th:nth-child(2) { width: 120px; }  /* Module */
+        th:nth-child(3) { width: 200px; }  /* Test Case */
+        th:nth-child(4) { width: 200px; }  /* Expected Outcome */
+        th:nth-child(5) { width: 200px; }  /* Actual Outcome */
+        th:nth-child(6) { width: 100px; }  /* Priority */
+        th:nth-child(7) { width: 120px; }  /* Assigned To */
+        th:nth-child(8) { width: 100px; }  /* Status */
+        th:nth-child(9) { width: 120px; }  /* Execution Date */
+        th:nth-child(10) { width: 100px; } /* Test Result */
+        th:nth-child(11) { width: 200px; } /* Comments */
+        th:nth-child(12) { width: 100px; } /* Actions */
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Case ID</th>
+                    <th>Module</th>
+                    <th>Test Case</th>
+                    <th>Expected Outcome</th>
+                    <th>Actual Outcome</th>
+                    <th>Priority</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Execution Date</th>
+                    <th>Test Result</th>
+                    <th>Comments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td class="editable" onclick="editCell(this)">{{ row["Test Case ID"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row.Module }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row["Test Case"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row["Expected Outcome"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row["Actual Outcome"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row.Priority }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row["Assigned To"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row.Status }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row["Execution Date"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row["Test Result"] }}</td>
+                    <td class="editable" onclick="editCell(this)">{{ row.Comments }}</td>
+                    <td>
+                        <button onclick="deleteRow(this)" class="delete-button">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bottom-bar">
+        {% for sheet in sheets %}
+        <div class="sheet-tab {% if sheet == current_sheet %}active{% endif %}"
+            onclick="changeSheet('{{ sheet }}')"
+            oncontextmenu="showSheetMenu(event, '{{ sheet }}'); return false;">
+            {{ sheet }}
+        </div>
+        {% endfor %}
+        <button class="new-sheet-btn" onclick="showNewSheetDialog()">
+            <span>+</span> Add Sheet
+        </button>
+    </div>
+
+    <div id="sheetMenu" class="sheet-menu">
+        <div class="sheet-menu-item" onclick="renameSheet()">
+            <span>✏️ Rename</span>
+        </div>
+        <div class="sheet-menu-item" onclick="duplicateSheet()">
+            <span>📋 Duplicate</span>
+        </div>
+        <div class="sheet-menu-item danger" onclick="deleteSheet()">
+            <span>🗑️ Delete</span>
+        </div>
+    </div>
+
+    <!-- Add color menu -->
+    <div id="colorMenu" class="color-menu">
+        <div class="color-option" style="background-color: #fce8e8;" onclick="setCellColor('red')"></div>
+        <div class="color-option" style="background-color: #e6f4ea;" onclick="setCellColor('green')"></div>
+        <div class="color-option" style="background-color: #fef7e0;" onclick="setCellColor('yellow')"></div>
+        <div class="color-option" style="background-color: #e8f0fe;" onclick="setCellColor('blue')"></div>
+        <div class="color-option" style="background-color: white;" onclick="setCellColor('')">❌</div>
+    </div>
+
+    <script>
+        const sheetId = window.location.pathname.split('/').pop();
+
+        function changeSheet(sheetName) {
+            window.location.href = `${window.location.pathname}?sheet_name=${sheetName}`;
+        }
+
+        async function editCell(cell) {
+            // Don't allow editing if already editing
+            if (cell.classList.contains('editing')) return;
+
+            const originalContent = cell.textContent;
+            const input = document.createElement('input');
+            
+            // Save original dimensions
+            const cellWidth = cell.offsetWidth;
+            const cellHeight = cell.offsetHeight;
+            
+            input.value = originalContent;
+            cell.textContent = '';
+            cell.appendChild(input);
+            cell.classList.add('editing');
+            
+            // Set minimum width to current cell width
+            cell.style.minWidth = `${cellWidth}px`;
+            input.style.minWidth = `${cellWidth}px`;
+            input.style.height = `${cellHeight}px`;
+            
+            input.focus();
+            input.select();  // Select all text
+
+            // Handle Enter key
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            });
+
+            // Save the current scroll position
+            const scrollTop = window.scrollY;
+            const scrollLeft = window.scrollX;
+
+            input.addEventListener('blur', async () => {
+                const newValue = input.value;
+                const rowIndex = cell.parentElement.rowIndex;
+                const colIndex = cell.cellIndex;
+                const range = `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`;
+
+                try {
+                    const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/cell`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            range: range,
+                            value: newValue
+                        })
+                    });
+
+                    if (response.ok) {
+                        cell.textContent = newValue;
+                    } else {
+                        cell.textContent = originalContent;
+                        alert('Failed to update cell');
+                    }
+                } catch (error) {
+                    cell.textContent = originalContent;
+                    console.error('Error:', error);
+                }
+                cell.classList.remove('editing');
+                cell.style.minWidth = '';
+
+                // Restore scroll position
+                window.scrollTo(scrollLeft, scrollTop);
+            });
+
+            // Click outside to save
+            document.addEventListener('click', function closeEdit(e) {
+                if (!cell.contains(e.target)) {
+                    input.blur();
+                    document.removeEventListener('click', closeEdit);
+                }
+            });
+        }
+
+        let activeSheetName = '';
+
+        function showSheetMenu(event, sheetName) {
+            const menu = document.getElementById('sheetMenu');
+            const rect = event.target.getBoundingClientRect();
+            
+            menu.style.display = 'block';
+            menu.style.left = `${rect.left}px`;
+            menu.style.bottom = `${window.innerHeight - rect.top + 5}px`;
+            
+            activeSheetName = sheetName;
+
+            document.addEventListener('click', closeSheetMenu);
+        }
+
+        function closeSheetMenu() {
+            document.getElementById('sheetMenu').style.display = 'none';
+            document.removeEventListener('click', closeSheetMenu);
+        }
+
+        async function renameSheet() {
+            const newName = prompt('Enter new name for sheet:', activeSheetName);
+            if (newName && newName !== activeSheetName) {
+                try {
+                    const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/rename`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            old_name: activeSheetName,
+                            new_name: newName
+                        })
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to rename sheet');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            closeSheetMenu();
+        }
+
+        async function duplicateSheet() {
+            const newName = prompt('Enter name for the duplicate sheet:', `${activeSheetName} (Copy)`);
+            if (newName) {
+                try {
+                    const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/duplicate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            source_name: activeSheetName,
+                            new_name: newName
+                        })
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to duplicate sheet');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            closeSheetMenu();
+        }
+
+        async function deleteSheet() {
+            if (confirm(`Are you sure you want to delete sheet "${activeSheetName}"?`)) {
+                try {
+                    const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/sheet/${activeSheetName}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to delete sheet');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            closeSheetMenu();
+        }
+
+        function showNewSheetDialog() {
+            createNewSheet();
+        }
+
+        async function createNewSheet() {
+            // Get all existing sheet names
+            const existingSheets = {{ sheets|tojson|safe }};
+            
+            // Find the next available sheet number
+            let counter = 1;
+            let sheetName;
+            do {
+                sheetName = counter === 1 ? "Sheet1" : `Sheet${counter}`;
+                counter++;
+            } while (existingSheets.includes(sheetName));
+
+            try {
+                const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/new-sheet`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title: sheetName })
+                });
+
+                if (response.ok) {
+                    // Get the result
+                    const result = await response.json();
+                    
+                    // Reload and switch to the new sheet
+                    window.location.href = `${window.location.pathname}?sheet_name=${sheetName}`;
+                } else {
+                    const error = await response.json();
+                    console.error('Error:', error);
+                    
+                    // If sheet exists, try the next number
+                    if (error.detail && error.detail.includes('already exists')) {
+                        counter++;
+                        createNewSheet();
+                        return;
+                    }
+                    
+                    alert(error.detail || 'Failed to create sheet');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create sheet');
+            }
+        }
+
+        async function deleteRow(button) {
+            const row = button.closest('tr');
+            const rowIndex = row.rowIndex;
+            
+            if (!confirm('Are you sure you want to delete this row?')) return;
+
+            try {
+                const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/row/${rowIndex}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    row.remove();  // Remove the row from the table immediately
+                } else {
+                    alert('Failed to delete row');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete row');
+            }
+        }
+
+        let activeCell = null;
+
+        // Add context menu for color options
+        document.addEventListener('contextmenu', (e) => {
+            const cell = e.target.closest('.editable');
+            if (!cell) return;
+
+            e.preventDefault();
+            const menu = document.getElementById('colorMenu');
+            
+            // Calculate position to keep menu in viewport
+            let left = e.pageX;
+            let top = e.pageY;
+            
+            const menuWidth = 150;  // Approximate menu width
+            const menuHeight = 120; // Approximate menu height
+            
+            if (left + menuWidth > window.innerWidth) {
+                left = window.innerWidth - menuWidth - 10;
+            }
+            
+            if (top + menuHeight > window.innerHeight) {
+                top = window.innerHeight - menuHeight - 10;
+            }
+            
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+            menu.style.display = 'block';
+            
+            activeCell = cell;
+        });
+
+        // Close color menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.color-menu')) {
+                document.getElementById('colorMenu').style.display = 'none';
+            }
+        });
+
+        async function setCellColor(color) {
+            if (!activeCell) return;
+            
+            // Remove existing color classes
+            activeCell.classList.remove('bg-red', 'bg-green', 'bg-yellow', 'bg-blue');
+            
+            // Add new color class if color is specified
+            if (color) {
+                activeCell.classList.add(`bg-${color}`);
+            }
+
+            // Get cell position
+            const rowIndex = activeCell.parentElement.rowIndex;
+            const colIndex = activeCell.cellIndex;
+            const range = `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`;
+
+            try {
+                // Update cell format in Google Sheets
+                const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/format`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        range: range,
+                        format: { backgroundColor: color }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update cell format');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to update cell color');
+            }
+
+            document.getElementById('colorMenu').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 
