@@ -10,49 +10,53 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;  /* Prevent horizontal scrollbar jumps */
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
-            overflow: hidden;
             font-size: 14px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-            border: none;
+            border: 1px solid #e0e0e0;
             table-layout: fixed;  /* Prevent column width changes */
+            position: relative;  /* Create stacking context */
         }
         
         th, td {
-            border: 1px solid #e1e1e1;
-            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            padding: 8px;
             text-align: left;
-            height: 40px;
+            height: 32px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             width: auto;  /* Let table-layout: fixed handle widths */
             background: white;
+            line-height: 1.4;
+            color: #37474F;  /* Blue grey 800 */
         }
         
         th {
-            background-color: #f3f3f3;
-            color: #5f6368;
-            font-weight: 500;
-            border-bottom: 2px solid #d4d4d4;
+            background-color: white;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
             position: sticky;
             top: 0;
             z-index: 10;
             height: 48px;
+            font-size: 13px;
+            padding: 12px;
         }
 
         /* Column separators */
         td:not(:last-child), th:not(:last-child) {
-            border-right: 1px solid #e1e1e1;
+            border-right: 1px solid #e0e0e0;
         }
 
         /* Row separators */
         tr:not(:last-child) td {
-            border-bottom: 1px solid #e1e1e1;
+            border-bottom: 1px solid #ebedf0;
         }
         
         tr:hover {
@@ -61,18 +65,19 @@
 
         .editable {
             cursor: pointer;
-            transition: all 0.2s;
-            min-width: 100px;
+            transition: background-color 0.2s;
             position: relative;
             padding: 8px 12px;
+            box-sizing: border-box;
+            height: 40px;  /* Fixed height to prevent jumps */
         }
 
         .editable:hover {
-            background-color: #f3f7fd;
+            background-color: #f5f5f5;
         }
 
         .editable.editing {
-            padding: 0;
+            padding: 0 !important;  /* Ensure consistent padding */
             outline: 2px solid #4285f4;
             outline-offset: -2px;
             background: white;
@@ -92,7 +97,7 @@
             left: 0;
             right: 0;
             background: white;
-            border-top: 1px solid #e1e1e1;
+            border-top: 1px solid #e0e0e0;
             padding: 8px 16px;
             display: flex;
             align-items: center;
@@ -100,8 +105,8 @@
             z-index: 900;
             height: 48px;
             box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
-            transform: translateZ(0);  /* Prevent z-index issues */
-            will-change: transform;    /* Optimize animations */
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         .sheet-tab {
@@ -180,13 +185,14 @@
             margin-bottom: 80px;
             overflow-x: auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             padding: 0;
-            border: 1px solid #e1e1e1;
+            border: 1px solid #ebedf0;
             flex: 1;
             position: relative;
-            height: calc(100vh - 120px);  /* Account for margins and bottom bar */
+            height: calc(100vh - 100px);
+            -webkit-overflow-scrolling: touch;  /* Smooth scrolling on iOS */
         }
 
         .button {
@@ -242,7 +248,7 @@
         input {
             font-family: inherit;
             font-size: inherit;
-            padding: 8px 12px;
+            padding: 8px 11px;  /* Account for border */
             border: none;
             outline: none;
             width: 100%;
@@ -250,6 +256,8 @@
             background: transparent;
             box-sizing: border-box;
             color: #202124;
+            margin: 0;
+            position: relative;
         }
 
         /* Color menu styles */
@@ -313,7 +321,147 @@
         th:nth-child(9) { width: 120px; }  /* Execution Date */
         th:nth-child(10) { width: 100px; } /* Test Result */
         th:nth-child(11) { width: 200px; } /* Comments */
-        th:nth-child(12) { width: 100px; } /* Actions */
+        th:nth-child(12) { width: 80px; }  /* Actions */
+
+        /* Prevent selection highlight */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Header hover effect */
+        th:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s;
+        }
+
+        /* First row styling */
+        tr:first-child td {
+            border-top: none;
+        }
+
+        /* Last row styling */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Empty state styling */
+        tbody:empty::after {
+            content: "No data available";
+            display: block;
+            text-align: center;
+            padding: 40px;
+            color: #9E9E9E;
+            font-style: italic;
+        }
+
+        /* Style for empty rows */
+        .empty-row {
+            height: 32px;  /* Same as regular rows */
+            border-bottom: 1px solid #e0e0e0;
+            color: #999;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Row number styling */
+        .row-number {
+            background-color: #f8f9fa;
+            color: #5F6368;
+            font-size: 12px;
+            text-align: center;
+            width: 40px !important;
+            min-width: 40px;
+            max-width: 40px;
+            user-select: none;
+            cursor: default;
+            border-right: 2px solid #e0e0e0;
+        }
+
+        /* Keep row numbers visible when scrolling horizontally */
+        .row-number {
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Adjust first column position */
+        th:first-child, td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+
+        /* Header text colors */
+        th:nth-child(2) { color: #1967D2; }  /* Test Case ID */
+        th:nth-child(3) { color: #188038; }  /* Module */
+        th:nth-child(4) { color: #1967D2; }  /* Test Case */
+        th:nth-child(5) { color: #188038; }  /* Expected Outcome */
+        th:nth-child(6) { color: #D93025; }  /* Actual Outcome */
+        th:nth-child(7) { color: #D93025; }  /* Priority */
+        th:nth-child(8) { color: #1967D2; }  /* Assigned To */
+        th:nth-child(9) { color: #188038; }  /* Status */
+        th:nth-child(10) { color: #D93025; } /* Execution Date */
+        th:nth-child(11) { color: #188038; } /* Test Result */
+        th:nth-child(12) { color: #1967D2; } /* Comments */
+        th:nth-child(13) { color: #5F6368; } /* Actions */
+
+        td {
+            color: #202124;  /* Dark gray for cell text */
+            background: white;
+        }
+
+        /* Remove column-specific styles for cells */
+        td:nth-child(1), td:nth-child(6), td:nth-child(8), td:nth-child(10) {
+            font-weight: normal;
+            color: inherit;
+        }
+
+        /* End of table indicator */
+        .end-of-table {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        /* Update hover effect */
+        tr:hover td {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s;
+        }
+
+        td {
+            color: #202124;
+            background: white;
+        }
+
+        th {
+            background-color: white;
+            color: #333333;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -321,6 +469,7 @@
         <table>
             <thead>
                 <tr>
+                    <th class="row-number">#</th>
                     <th>Test Case ID</th>
                     <th>Module</th>
                     <th>Test Case</th>
@@ -338,6 +487,7 @@
             <tbody>
                 {% for row in data %}
                 <tr>
+                    <td class="row-number">{{ loop.index }}</td>
                     <td class="editable" onclick="editCell(this)">{{ row["Test Case ID"] }}</td>
                     <td class="editable" onclick="editCell(this)">{{ row.Module }}</td>
                     <td class="editable" onclick="editCell(this)">{{ row["Test Case"] }}</td>
@@ -396,43 +546,51 @@
         const sheetId = window.location.pathname.split('/').pop();
 
         function changeSheet(sheetName) {
+            // Save current scroll position
+            localStorage.setItem('scrollPosition', JSON.stringify({
+                top: document.querySelector('.table-container').scrollTop,
+                left: document.querySelector('.table-container').scrollLeft
+            }));
+            
+            // Change sheet
             window.location.href = `${window.location.pathname}?sheet_name=${sheetName}`;
         }
 
+        // Restore scroll position when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const savedScroll = JSON.parse(localStorage.getItem('scrollPosition'));
+                if (savedScroll) {
+                    const container = document.querySelector('.table-container');
+                    container.scrollTop = savedScroll.top;
+                    container.scrollLeft = savedScroll.left;
+                    
+                    // Clear saved position after restoring
+                    localStorage.removeItem('scrollPosition');
+                }
+            } catch (e) {
+                console.error('Error restoring scroll position:', e);
+            }
+        });
+
         async function editCell(cell) {
-            // Don't allow editing if already editing
+            // Store table scroll position
+            const container = document.querySelector('.table-container');
+            const scrollLeft = container.scrollLeft;
+            const scrollTop = container.scrollTop;
+
             if (cell.classList.contains('editing')) return;
 
             const originalContent = cell.textContent;
             const input = document.createElement('input');
-            
-            // Save original dimensions
-            const cellWidth = cell.offsetWidth;
-            const cellHeight = cell.offsetHeight;
             
             input.value = originalContent;
             cell.textContent = '';
             cell.appendChild(input);
             cell.classList.add('editing');
             
-            // Set minimum width to current cell width
-            cell.style.minWidth = `${cellWidth}px`;
-            input.style.minWidth = `${cellWidth}px`;
-            input.style.height = `${cellHeight}px`;
-            
             input.focus();
-            input.select();  // Select all text
-
-            // Handle Enter key
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    input.blur();
-                }
-            });
-
-            // Save the current scroll position
-            const scrollTop = window.scrollY;
-            const scrollLeft = window.scrollX;
+            input.select();
 
             input.addEventListener('blur', async () => {
                 const newValue = input.value;
@@ -443,38 +601,27 @@
                 try {
                     const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/cell`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            range: range,
-                            value: newValue
-                        })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ range, value: newValue })
                     });
 
                     if (response.ok) {
                         cell.textContent = newValue;
                     } else {
                         cell.textContent = originalContent;
-                        alert('Failed to update cell');
                     }
                 } catch (error) {
                     cell.textContent = originalContent;
                     console.error('Error:', error);
                 }
+
                 cell.classList.remove('editing');
-                cell.style.minWidth = '';
-
+                
                 // Restore scroll position
-                window.scrollTo(scrollLeft, scrollTop);
-            });
-
-            // Click outside to save
-            document.addEventListener('click', function closeEdit(e) {
-                if (!cell.contains(e.target)) {
-                    input.blur();
-                    document.removeEventListener('click', closeEdit);
-                }
+                requestAnimationFrame(() => {
+                    container.scrollLeft = scrollLeft;
+                    container.scrollTop = scrollTop;
+                });
             });
         }
 
@@ -597,10 +744,10 @@
                 });
 
                 if (response.ok) {
-                    // Get the result
                     const result = await response.json();
                     
-                    // Reload and switch to the new sheet
+                    // For new sheets, start at the top
+                    localStorage.removeItem('scrollPosition');
                     window.location.href = `${window.location.pathname}?sheet_name=${sheetName}`;
                 } else {
                     const error = await response.json();
@@ -721,6 +868,86 @@
 
             document.getElementById('colorMenu').style.display = 'none';
         }
+
+        // Prevent scroll position changes when clicking
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.editable')) {
+                e.preventDefault();
+            }
+        }, { capture: true });
+
+        // Update table container styles
+        document.querySelector('.table-container').style.scrollBehavior = 'smooth';
+
+        // Add empty rows dynamically
+        function addEmptyRows() {
+            const tbody = document.querySelector('tbody');
+            const currentRows = tbody.children.length;
+            const targetRows = 300;  // Show all 300 rows
+            
+            // Calculate how many actual data rows we have
+            const dataRows = document.querySelectorAll('tbody tr:not(.empty-row):not(.end-of-table)').length;
+            
+            // Remove existing end indicator if any
+            const existingIndicator = document.querySelector('.end-of-table');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            if (dataRows < targetRows) {
+                const fragment = document.createDocumentFragment();
+                for (let i = dataRows; i < targetRows; i++) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'empty-row';
+                    
+                    // Add row number
+                    const rowNum = document.createElement('td');
+                    rowNum.className = 'row-number';
+                    rowNum.textContent = i + 1;
+                    tr.appendChild(rowNum);
+                    
+                    // Add empty cells
+                    for (let j = 0; j < 12; j++) {
+                        const td = document.createElement('td');
+                        td.className = 'editable';
+                        td.onclick = function() { editCell(this); };
+                        td.textContent = '';
+                        tr.appendChild(td);
+                    }
+                    fragment.appendChild(tr);
+                }
+                tbody.appendChild(fragment);
+
+                // Add end of table indicator
+                const endRow = document.createElement('tr');
+                const endCell = document.createElement('td');
+                endCell.colSpan = 13;
+                endCell.className = 'end-of-table';
+                endCell.textContent = 'End of table - Maximum 300 rows';
+                endRow.appendChild(endCell);
+                tbody.appendChild(endRow);
+            }
+        }
+
+        // Call addEmptyRows on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            addEmptyRows();
+        });
+
+        // Update scroll handler
+        document.querySelector('.table-container').addEventListener('scroll', function(e) {
+            const { scrollTop, scrollHeight, clientHeight } = e.target;
+            
+            clearTimeout(scrollTimeout);
+            
+            scrollTimeout = setTimeout(() => {
+                const tbody = document.querySelector('tbody');
+                const dataRows = document.querySelectorAll('tbody tr:not(.empty-row):not(.end-of-table)').length;
+                if (dataRows < 300 && scrollHeight - scrollTop - clientHeight < 200) {
+                    addEmptyRows();
+                }
+            }, 100);
+        });
     </script>
 </body>
 </html> 

@@ -27,7 +27,7 @@ class SheetsService:
         try:
             batch = service.spreadsheets().values().batchGet(
                 spreadsheetId=sheet_id,
-                ranges=[f"'{sheet_name}'!A1:K1000" if sheet_name else "A1:K1000"],
+                ranges=[f"'{sheet_name}'!A1:M300" if sheet_name else "A1:M300"],
                 majorDimension='ROWS',
                 valueRenderOption='FORMATTED_VALUE'
             ).execute()
@@ -226,8 +226,8 @@ class SheetsService:
                         'properties': {
                             'title': title,
                             'gridProperties': {
-                                'rowCount': 1000,
-                                'columnCount': 11,
+                                'rowCount': 300,
+                                'columnCount': 13,
                                 'frozenRowCount': 1
                             },
                             'tabColor': {
@@ -262,7 +262,7 @@ class SheetsService:
                 "Comments"
             ]]
             
-            range_name = f"'{title}'!A1:K1"
+            range_name = f"'{title}'!A1:M1"
             
             # Add headers
             body = {
@@ -285,7 +285,7 @@ class SheetsService:
                                 'startRowIndex': 0,
                                 'endRowIndex': 1,
                                 'startColumnIndex': 0,
-                                'endColumnIndex': 11
+                                'endColumnIndex': 13
                             },
                             'cell': {
                                 'userEnteredFormat': {
@@ -311,7 +311,7 @@ class SheetsService:
                                 'sheetId': new_sheet_id,
                                 'dimension': 'COLUMNS',
                                 'startIndex': 0,
-                                'endIndex': 11
+                                'endIndex': 13
                             }
                         }
                     }
