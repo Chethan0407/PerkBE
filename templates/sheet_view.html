@@ -19,34 +19,32 @@
             font-size: 14px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
             border: 1px solid #e0e0e0;
-            table-layout: fixed;  /* Prevent column width changes */
-            position: relative;  /* Create stacking context */
+            table-layout: fixed;
+            position: relative;
         }
         
         th, td {
             border: 1px solid #e0e0e0;
             padding: 8px;
             text-align: left;
-            height: 32px;
+            height: 40px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            width: auto;  /* Let table-layout: fixed handle widths */
-            background: white;
-            line-height: 1.4;
-            color: #37474F;  /* Blue grey 800 */
         }
         
         th {
             background-color: white;
+            color: #333333;
             font-weight: 600;
-            border-bottom: 2px solid #e0e0e0;
+            padding: 16px;
+            height: 60px;
+            font-size: 15px;
             position: sticky;
             top: 0;
             z-index: 10;
-            height: 48px;
-            font-size: 13px;
-            padding: 12px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
         }
 
         /* Column separators */
@@ -56,7 +54,7 @@
 
         /* Row separators */
         tr:not(:last-child) td {
-            border-bottom: 1px solid #ebedf0;
+            border-bottom: 1px solid #e0e0e0;
         }
         
         tr:hover {
@@ -98,70 +96,126 @@
             right: 0;
             background: white;
             border-top: 1px solid #e0e0e0;
-            padding: 8px 16px;
+            padding: 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0;
             z-index: 900;
-            height: 48px;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            height: 40px;
+            box-shadow: 0 -1px 2px rgba(0,0,0,0.05);
             backdrop-filter: blur(8px);
-            background: rgba(255, 255, 255, 0.95);
+            background: white;
+            min-width: min-content;  /* Prevent wrapping */
         }
 
         .sheet-tab {
-            padding: 8px 16px;
+            padding: 0 20px;
             border: none;
             border-radius: 4px 4px 0 0;
             background: transparent;
             cursor: pointer;
             font-size: 13px;
-            color: #5f6368;
-            height: 32px;
-            transition: background-color 0.2s;
-            user-select: none;  /* Prevent text selection */
+            color: #3c4043;
+            font-weight: 500;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            user-select: none;
+            position: relative;
+            min-width: 80px;
+            justify-content: center;
         }
 
         .sheet-tab.active {
-            background: #f1f3f4;
+            background: white;
             color: #1a73e8;
+            font-weight: 600;
+            border: 1px solid #e0e0e0;
+            border-top: 3px solid #1a73e8;
+            border-bottom: none;
+            height: 41px;
+            margin-top: -1px;
         }
 
-        .sheet-tab:hover {
-            background: #f1f3f4;
+        .sheet-tab:hover:not(.active) {
+            background: #f8f9fa;
+            color: #202124;
         }
 
         .sheet-menu {
             position: absolute;
-            bottom: 100%;
             left: 0;
             background: white;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(60, 64, 67, 0.15);
             display: none;
-            min-width: 150px;
+            min-width: 200px;
             z-index: 1100;
+            padding: 4px 0;
+            font-size: 13px;
         }
 
         .sheet-menu-item {
-            padding: 8px 12px;
+            padding: 5px 36px 5px 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 13px;
+            color: #3c4043;
+            white-space: nowrap;
+            position: relative;
+            height: 32px;
         }
 
         .sheet-menu-item:hover {
-            background: #f5f5f5;
+            background-color: #f1f3f4;
+        }
+
+        .sheet-menu-item:hover::after {
+            content: '';  /* Remove keyboard shortcuts */
+            position: absolute;
+            right: 16px;
+            color: #5f6368;
+            font-size: 12px;
+        }
+
+        .sheet-menu-item span {
+            opacity: 0.87;
+        }
+
+        /* Divider between menu items */
+        .sheet-menu-divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 4px 0;
+        }
+
+        .rename-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #1a73e8;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+            margin: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            box-sizing: border-box;
+            z-index: 1101;
+            background: white;
         }
 
         .sheet-menu-item.danger {
-            color: #dc3545;
+            color: #d93025;
         }
 
         .new-sheet-btn {
-            padding: 8px 12px;
+            padding: 0 16px;
             color: #1a73e8;
             background: transparent;
             border: none;
@@ -170,13 +224,19 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            height: 32px;
-            border-radius: 4px;
-            margin-left: 4px;
+            height: 40px;
+            border-radius: 0;
+            margin-left: 0;
+            font-weight: 500;
+            border-left: 1px solid #f1f3f4;
+            flex-shrink: 0;  /* Prevent button from shrinking */
+            position: sticky;
+            right: 0;
+            background: white;  /* Cover overflow content */
         }
 
         .new-sheet-btn:hover {
-            background: #e8f0fe;
+            background: #f8f9fa;
         }
 
         /* Table container */
@@ -186,9 +246,9 @@
             overflow-x: auto;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             padding: 0;
-            border: 1px solid #ebedf0;
+            border: 1px solid #e0e0e0;
             flex: 1;
             position: relative;
             height: calc(100vh - 100px);
@@ -310,124 +370,55 @@
         }
 
         /* Set specific widths for columns to prevent jumping */
-        th:nth-child(1) { width: 100px; }  /* Test Case ID */
-        th:nth-child(2) { width: 120px; }  /* Module */
-        th:nth-child(3) { width: 200px; }  /* Test Case */
-        th:nth-child(4) { width: 200px; }  /* Expected Outcome */
-        th:nth-child(5) { width: 200px; }  /* Actual Outcome */
-        th:nth-child(6) { width: 100px; }  /* Priority */
-        th:nth-child(7) { width: 120px; }  /* Assigned To */
-        th:nth-child(8) { width: 100px; }  /* Status */
-        th:nth-child(9) { width: 120px; }  /* Execution Date */
-        th:nth-child(10) { width: 100px; } /* Test Result */
-        th:nth-child(11) { width: 200px; } /* Comments */
-        th:nth-child(12) { width: 80px; }  /* Actions */
+        th:nth-child(1) { width: 50px; }    /* Row number */
+        th:nth-child(2) { width: 150px; }   /* Test Case ID */
+        th:nth-child(3) { width: 180px; }   /* Module */
+        th:nth-child(4) { width: 300px; }   /* Test Case */
+        th:nth-child(5) { width: 300px; }   /* Expected Outcome */
+        th:nth-child(6) { width: 300px; }   /* Actual Outcome */
+        th:nth-child(7) { width: 120px; }   /* Priority */
+        th:nth-child(8) { width: 150px; }   /* Assigned To */
+        th:nth-child(9) { width: 120px; }   /* Status */
+        th:nth-child(10) { width: 150px; }  /* Execution Date */
+        th:nth-child(11) { width: 120px; }  /* Test Result */
+        th:nth-child(12) { width: 250px; }  /* Comments */
+        th:nth-child(13) { width: 100px; }  /* Actions */
 
-        /* Prevent selection highlight */
-        .no-select {
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+        /* Update cell styling */
+        td, th {
+            padding: 12px 16px;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
-        /* Header hover effect */
-        th:hover {
-            background-color: #f8f9fa;
-            transition: background-color 0.2s;
+        /* Make test case related columns more prominent */
+        td:nth-child(4), /* Test Case */
+        td:nth-child(5), /* Expected Outcome */
+        td:nth-child(6)  /* Actual Outcome */ {
+            font-size: 15px;
+            line-height: 1.6;
+            padding: 16px;
+            white-space: pre-wrap; /* Allow line breaks */
+            min-height: 60px;
         }
 
-        /* First row styling */
-        tr:first-child td {
-            border-top: none;
+        /* Make headers more visible */
+        th {
+            font-size: 15px;
+            font-weight: 600;
+            padding: 16px;
+            height: 60px;
         }
 
-        /* Last row styling */
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Empty state styling */
-        tbody:empty::after {
-            content: "No data available";
-            display: block;
-            text-align: center;
-            padding: 40px;
-            color: #9E9E9E;
-            font-style: italic;
-        }
-
-        /* Style for empty rows */
-        .empty-row {
-            height: 32px;  /* Same as regular rows */
-            border-bottom: 1px solid #e0e0e0;
-            color: #999;
-        }
-
-        /* Hide scrollbar but keep functionality */
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .table-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-        }
-
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        /* Row number styling */
-        .row-number {
-            background-color: #f8f9fa;
-            color: #5F6368;
-            font-size: 12px;
-            text-align: center;
-            width: 40px !important;
-            min-width: 40px;
-            max-width: 40px;
-            user-select: none;
-            cursor: default;
-            border-right: 2px solid #e0e0e0;
-        }
-
-        /* Keep row numbers visible when scrolling horizontally */
-        .row-number {
-            position: sticky;
-            left: 0;
-            z-index: 1;
-        }
-
-        /* Adjust first column position */
-        th:first-child, td:first-child {
-            position: sticky;
-            left: 0;
-            z-index: 2;
-        }
-
-        /* Header text colors */
-        th:nth-child(2) { color: #1967D2; }  /* Test Case ID */
-        th:nth-child(3) { color: #188038; }  /* Module */
-        th:nth-child(4) { color: #1967D2; }  /* Test Case */
-        th:nth-child(5) { color: #188038; }  /* Expected Outcome */
-        th:nth-child(6) { color: #D93025; }  /* Actual Outcome */
-        th:nth-child(7) { color: #D93025; }  /* Priority */
-        th:nth-child(8) { color: #1967D2; }  /* Assigned To */
-        th:nth-child(9) { color: #188038; }  /* Status */
-        th:nth-child(10) { color: #D93025; } /* Execution Date */
-        th:nth-child(11) { color: #188038; } /* Test Result */
-        th:nth-child(12) { color: #1967D2; } /* Comments */
-        th:nth-child(13) { color: #5F6368; } /* Actions */
-
-        td {
-            color: #202124;  /* Dark gray for cell text */
+        /* Improve readability of cells */
+        .editable {
             background: white;
+            transition: all 0.2s;
+        }
+
+        .editable:hover {
+            background: #f8f9fa;
+            box-shadow: 0 0 0 2px #e8f0fe;
         }
 
         /* Remove column-specific styles for cells */
@@ -462,6 +453,228 @@
             color: #333333;
             font-weight: 600;
         }
+
+        /* Ensure header text is vertically centered */
+        th {
+            vertical-align: middle;
+        }
+
+        /* Container for sheet tabs */
+        .sheets-container {
+            display: flex;
+            align-items: flex-end;
+            height: 40px;
+            gap: 0;
+            margin-left: 0;
+            padding-right: 16px;
+            border-right: 1px solid #f1f3f4;
+            overflow-x: auto;
+            overflow-y: hidden;
+            flex: 1;  /* Take remaining space */
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .sheets-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Update hamburger menu styles */
+        .sheet-hamburger {
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-right: 0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .sheet-hamburger:hover {
+            background-color: #f1f3f4;
+        }
+
+        .sheet-hamburger-icon {
+            width: 18px;
+            height: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .sheet-hamburger-icon span {
+            display: block;
+            width: 18px;
+            height: 2px;
+            background-color: #5f6368;
+            border-radius: 1px;
+        }
+
+        /* Worksheet menu styles */
+        .worksheet-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(60, 64, 67, 0.15);
+            min-width: 240px;
+            z-index: 1100;
+            padding: 8px 0;
+            font-size: 13px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .worksheet-menu-item {
+            padding: 0 24px 0 42px;
+            cursor: pointer;
+            color: #3c4043;
+            display: flex;
+            align-items: center;
+            height: 32px;
+            position: relative;
+        }
+
+        .worksheet-menu-item.active {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .worksheet-menu-item.active::after {
+            content: '✓';
+            position: absolute;
+            left: 16px;
+            color: #1a73e8;
+        }
+
+        .worksheet-menu-item:hover {
+            background-color: #f1f3f4;
+        }
+
+        /* Add styles for drag handle and selection */
+        .editable {
+            position: relative;
+        }
+
+        .drag-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #1a73e8;
+            right: -4px;
+            bottom: -4px;
+            cursor: crosshair;
+            border-radius: 2px;
+            display: none;
+            z-index: 100;
+        }
+
+        .editable.selected {
+            outline: 2px solid #1a73e8;
+            outline-offset: -2px;
+        }
+
+        .editable.selected .drag-handle {
+            display: block;
+        }
+
+        .cell-selection {
+            position: absolute;
+            background: rgba(26, 115, 232, 0.1);
+            border: 2px solid #1a73e8;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        /* Header text colors with better contrast */
+        th:nth-child(1) { /* Row number */
+            background: #f8f9fa;
+            color: #202124;
+            font-weight: 600;
+        }
+        th:nth-child(2) { /* Test Case ID */
+            color: #1967D2;
+            background: #E8F0FE;
+        }
+        th:nth-child(3) { /* Module */
+            color: #188038;
+            background: #E6F4EA;
+        }
+        th:nth-child(4) { /* Test Case */
+            color: #1967D2;
+            background: #E8F0FE;
+        }
+        th:nth-child(5) { /* Expected Outcome */
+            color: #188038;
+            background: #E6F4EA;
+        }
+        th:nth-child(6) { /* Actual Outcome */
+            color: #D93025;
+            background: #FCE8E6;
+            font-weight: 700;
+        }
+        th:nth-child(7) { /* Priority */
+            color: #D93025;
+            background: #FCE8E6;
+        }
+        th:nth-child(8) { /* Assigned To */
+            color: #1967D2;
+            background: #E8F0FE;
+        }
+        th:nth-child(9) { /* Status */
+            color: #188038;
+            background: #E6F4EA;
+        }
+        th:nth-child(10) { /* Execution Date */
+            color: #D93025;
+            background: #FCE8E6;
+        }
+        th:nth-child(11) { /* Test Result */
+            color: #188038;
+            background: #E6F4EA;
+        }
+        th:nth-child(12) { /* Comments */
+            color: #1967D2;
+            background: #E8F0FE;
+        }
+        th:nth-child(13) { /* Actions */
+            color: #5F6368;
+            background: #F8F9FA;
+        }
+
+        /* Add subtle hover effect to headers */
+        th:hover {
+            filter: brightness(0.98);
+        }
+
+        /* Add column resize styles */
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            right: -3px;
+            width: 6px;
+            height: 100%;
+            cursor: col-resize;
+            z-index: 11;
+        }
+
+        .resize-handle:hover,
+        .resize-handle.active {
+            background-color: #1a73e8;
+            width: 2px;
+            right: -1px;
+        }
+
+        th {
+            position: relative;  /* For resize handle positioning */
+        }
+
+        .table-container.resizing {
+            cursor: col-resize;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -470,8 +683,12 @@
             <thead>
                 <tr>
                     <th class="row-number">#</th>
-                    <th>Test Case ID</th>
-                    <th>Module</th>
+                    <th>Test Case ID
+                        <div class="resize-handle"></div>
+                    </th>
+                    <th>Module
+                        <div class="resize-handle"></div>
+                    </th>
                     <th>Test Case</th>
                     <th>Expected Outcome</th>
                     <th>Actual Outcome</th>
@@ -509,13 +726,23 @@
     </div>
 
     <div class="bottom-bar">
-        {% for sheet in sheets %}
-        <div class="sheet-tab {% if sheet == current_sheet %}active{% endif %}"
-            onclick="changeSheet('{{ sheet }}')"
-            oncontextmenu="showSheetMenu(event, '{{ sheet }}'); return false;">
-            {{ sheet }}
+        <div class="sheet-hamburger" onclick="showWorksheetMenu(event)">
+            <div class="sheet-hamburger-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
-        {% endfor %}
+        <div class="sheets-container">
+            {% for sheet in sheets %}
+            <div class="sheet-tab {% if sheet == current_sheet %}active{% endif %}"
+                data-sheet="{{ sheet }}"
+                onclick="changeSheet('{{ sheet }}')"
+                oncontextmenu="showSheetMenu(event, '{{ sheet }}'); return false;">
+                {{ sheet }}
+            </div>
+            {% endfor %}
+        </div>
         <button class="new-sheet-btn" onclick="showNewSheetDialog()">
             <span>+</span> Add Sheet
         </button>
@@ -523,13 +750,15 @@
 
     <div id="sheetMenu" class="sheet-menu">
         <div class="sheet-menu-item" onclick="renameSheet()">
-            <span>✏️ Rename</span>
+            <span>Rename</span>
         </div>
+        <div class="sheet-menu-divider"></div>
         <div class="sheet-menu-item" onclick="duplicateSheet()">
-            <span>📋 Duplicate</span>
+            <span>Duplicate</span>
         </div>
+        <div class="sheet-menu-divider"></div>
         <div class="sheet-menu-item danger" onclick="deleteSheet()">
-            <span>🗑️ Delete</span>
+            <span>Delete</span>
         </div>
     </div>
 
@@ -542,43 +771,22 @@
         <div class="color-option" style="background-color: white;" onclick="setCellColor('')">❌</div>
     </div>
 
+    <!-- Add worksheet menu -->
+    <div id="worksheetMenu" class="worksheet-menu" style="display: none;">
+        {% for sheet in sheets %}
+        <div class="worksheet-menu-item {% if sheet == current_sheet %}active{% endif %}" 
+            onclick="changeSheet('{{ sheet }}')">
+            {{ sheet }}
+        </div>
+        {% endfor %}
+    </div>
+
     <script>
         const sheetId = window.location.pathname.split('/').pop();
-
-        function changeSheet(sheetName) {
-            // Save current scroll position
-            localStorage.setItem('scrollPosition', JSON.stringify({
-                top: document.querySelector('.table-container').scrollTop,
-                left: document.querySelector('.table-container').scrollLeft
-            }));
-            
-            // Change sheet
-            window.location.href = `${window.location.pathname}?sheet_name=${sheetName}`;
-        }
-
-        // Restore scroll position when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const savedScroll = JSON.parse(localStorage.getItem('scrollPosition'));
-                if (savedScroll) {
-                    const container = document.querySelector('.table-container');
-                    container.scrollTop = savedScroll.top;
-                    container.scrollLeft = savedScroll.left;
-                    
-                    // Clear saved position after restoring
-                    localStorage.removeItem('scrollPosition');
-                }
-            } catch (e) {
-                console.error('Error restoring scroll position:', e);
-            }
-        });
+        let currentSheetData = {};
+        let currentSheet = '{{ current_sheet }}';
 
         async function editCell(cell) {
-            // Store table scroll position
-            const container = document.querySelector('.table-container');
-            const scrollLeft = container.scrollLeft;
-            const scrollTop = container.scrollTop;
-
             if (cell.classList.contains('editing')) return;
 
             const originalContent = cell.textContent;
@@ -595,8 +803,8 @@
             input.addEventListener('blur', async () => {
                 const newValue = input.value;
                 const rowIndex = cell.parentElement.rowIndex;
-                const colIndex = cell.cellIndex;
-                const range = `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`;
+                const colIndex = cell.cellIndex - 1; // Adjust for row number column
+                const range = `${String.fromCharCode(65 + colIndex)}${rowIndex}`;
 
                 try {
                     const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/cell`, {
@@ -616,28 +824,118 @@
                 }
 
                 cell.classList.remove('editing');
-                
-                // Restore scroll position
-                requestAnimationFrame(() => {
-                    container.scrollLeft = scrollLeft;
-                    container.scrollTop = scrollTop;
-                });
             });
+        }
+
+        function updateTableContent(data) {
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            // If no data, show empty state with no headers
+            if (!data || data.length === 0) {
+                addEmptyRows();
+                return;
+            }
+
+            // Skip the header row if it exists
+            const startIndex = data[0]["Test Case ID"] === "Test Case ID" ? 1 : 0;
+
+            data.slice(startIndex).forEach((row, index) => {
+                const tr = document.createElement('tr');
+                
+                // Add row number
+                const rowNum = document.createElement('td');
+                rowNum.className = 'row-number';
+                rowNum.textContent = index + 1;
+                tr.appendChild(rowNum);
+
+                // Add data cells
+                [
+                    "Test Case ID", "Module", "Test Case", "Expected Outcome",
+                    "Actual Outcome", "Priority", "Assigned To", "Status",
+                    "Execution Date", "Test Result", "Comments"
+                ].forEach(key => {
+                    const td = document.createElement('td');
+                    td.className = 'editable';
+                    td.onclick = function() { editCell(this); };
+                    td.textContent = row[key] || '';
+                    tr.appendChild(td);
+                });
+
+                // Add delete button
+                const actionTd = document.createElement('td');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-button';
+                deleteBtn.onclick = function() { deleteRow(this); };
+                deleteBtn.textContent = 'Delete';
+                actionTd.appendChild(deleteBtn);
+                tr.appendChild(actionTd);
+
+                tbody.appendChild(tr);
+            });
+
+            addEmptyRows();
         }
 
         let activeSheetName = '';
 
+        async function changeSheet(sheetName) {
+            if (sheetName === currentSheet) return;
+
+            try {
+                const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/data/${sheetId}?sheet_name=${sheetName}`);
+                
+                if (!response.ok) throw new Error('Failed to fetch sheet data');
+                
+                const result = await response.json();
+                currentSheetData = result.data;
+                currentSheet = sheetName;
+
+                // Update URL without reload
+                const url = new URL(window.location);
+                url.searchParams.set('sheet_name', sheetName);
+                window.history.pushState({}, '', url);
+
+                // Update table content and sheet tabs
+                updateTableContent(result.data);
+                updateSheetTabs(sheetName);
+            } catch (error) {
+                console.error('Error changing sheet:', error);
+                alert('Failed to switch to sheet: ' + sheetName);
+            }
+        }
+
         function showSheetMenu(event, sheetName) {
+            closeSheetMenu();
+            
             const menu = document.getElementById('sheetMenu');
             const rect = event.target.getBoundingClientRect();
             
             menu.style.display = 'block';
-            menu.style.left = `${rect.left}px`;
-            menu.style.bottom = `${window.innerHeight - rect.top + 5}px`;
+            
+            let left = rect.left;
+            let top = rect.bottom + 5;  // Show menu below the tab instead of above
+            
+            // Adjust if menu would go off screen
+            if (left + menu.offsetWidth > window.innerWidth) {
+                left = window.innerWidth - menu.offsetWidth - 10;
+            }
+            if (top + menu.offsetHeight > window.innerHeight - 50) {
+                top = rect.top - menu.offsetHeight - 5;  // Show above if no space below
+            }
+            
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
             
             activeSheetName = sheetName;
-
-            document.addEventListener('click', closeSheetMenu);
+            event.preventDefault();
+            
+            // Add click listener with delay
+            setTimeout(() => {
+                document.addEventListener('click', closeSheetMenu);
+            }, 0);
+            
+            return false;
         }
 
         function closeSheetMenu() {
@@ -646,29 +944,70 @@
         }
 
         async function renameSheet() {
-            const newName = prompt('Enter new name for sheet:', activeSheetName);
-            if (newName && newName !== activeSheetName) {
-                try {
-                    const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/rename`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            old_name: activeSheetName,
-                            new_name: newName
-                        })
-                    });
+            const tab = document.querySelector(`.sheet-tab[data-sheet="${activeSheetName}"]`);
+            const input = document.createElement('input');
+            input.className = 'rename-input';
+            input.value = activeSheetName;
+            
+            // Save original content in case of cancel
+            const originalName = activeSheetName;
+            
+            // Replace tab content with input
+            tab.textContent = '';
+            tab.appendChild(input);
+            input.focus();
+            input.select();
+            
+            const handleRename = async () => {
+                const newName = input.value.trim();
+                if (newName && newName !== originalName) {
+                    try {
+                        const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/rename`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                old_name: originalName,
+                                new_name: newName
+                            })
+                        });
 
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Failed to rename sheet');
+                        if (response.ok) {
+                            tab.textContent = newName;
+                            tab.setAttribute('data-sheet', newName);
+                            
+                            if (originalName === currentSheet) {
+                                currentSheet = newName;
+                                const url = new URL(window.location);
+                                url.searchParams.set('sheet_name', newName);
+                                window.history.pushState({}, '', url);
+                            }
+                        } else {
+                            tab.textContent = originalName;
+                            alert('Failed to rename sheet');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        tab.textContent = originalName;
                     }
-                } catch (error) {
-                    console.error('Error:', error);
+                } else {
+                    tab.textContent = originalName;
                 }
-            }
+            };
+
+            // Handle Enter key and blur
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    tab.textContent = originalName;
+                    closeSheetMenu();
+                }
+            });
+
+            input.addEventListener('blur', handleRename);
             closeSheetMenu();
         }
 
@@ -688,7 +1027,18 @@
                     });
 
                     if (response.ok) {
-                        location.reload();
+                        // Add new tab without reload
+                        const sheetsContainer = document.querySelector('.sheets-container');
+                        const newTab = document.createElement('div');
+                        newTab.className = 'sheet-tab';
+                        newTab.setAttribute('data-sheet', newName);
+                        newTab.onclick = () => changeSheet(newName);
+                        newTab.oncontextmenu = (e) => showSheetMenu(e, newName);
+                        newTab.textContent = newName;
+                        sheetsContainer.appendChild(newTab);
+                        
+                        // Switch to new sheet
+                        changeSheet(newName);
                     } else {
                         alert('Failed to duplicate sheet');
                     }
@@ -700,20 +1050,35 @@
         }
 
         async function deleteSheet() {
-            if (confirm(`Are you sure you want to delete sheet "${activeSheetName}"?`)) {
-                try {
-                    const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/sheet/${activeSheetName}`, {
-                        method: 'DELETE'
-                    });
+            try {
+                const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/sheet/${activeSheetName}`, {
+                    method: 'DELETE'
+                });
 
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Failed to delete sheet');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
+                if (response.ok) {
+                    const tab = document.querySelector(`.sheet-tab[data-sheet="${activeSheetName}"]`);
+                    
+                    // Animate removal
+                    tab.style.transition = 'all 0.2s';
+                    tab.style.opacity = '0';
+                    tab.style.transform = 'translateY(10px)';
+                    
+                    setTimeout(() => {
+                        tab.remove();
+                        
+                        // Switch to first available sheet if current sheet was deleted
+                        if (activeSheetName === currentSheet) {
+                            const firstSheet = document.querySelector('.sheet-tab');
+                            if (firstSheet) {
+                                changeSheet(firstSheet.getAttribute('data-sheet'));
+                            }
+                        }
+                    }, 200);
+                } else {
+                    alert('Failed to delete sheet');
                 }
+            } catch (error) {
+                console.error('Error:', error);
             }
             closeSheetMenu();
         }
@@ -726,13 +1091,21 @@
             // Get all existing sheet names
             const existingSheets = {{ sheets|tojson|safe }};
             
-            // Find the next available sheet number
+            // Extract numbers from existing sheet names
+            const usedNumbers = existingSheets
+                .map(name => {
+                    const match = name.match(/Sheet(\d+)/);
+                    return match ? parseInt(match[1]) : 0;
+                })
+                .filter(num => !isNaN(num));
+            
+            // Find the lowest available number
             let counter = 1;
-            let sheetName;
-            do {
-                sheetName = counter === 1 ? "Sheet1" : `Sheet${counter}`;
+            while (usedNumbers.includes(counter)) {
                 counter++;
-            } while (existingSheets.includes(sheetName));
+            }
+            
+            const sheetName = `Sheet${counter}`;
 
             try {
                 const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/new-sheet`, {
@@ -744,16 +1117,52 @@
                 });
 
                 if (response.ok) {
-                    const result = await response.json();
+                    // Add new tab without reload
+                    const sheetsContainer = document.querySelector('.sheets-container');
                     
-                    // For new sheets, start at the top
-                    localStorage.removeItem('scrollPosition');
-                    window.location.href = `${window.location.pathname}?sheet_name=${sheetName}`;
+                    // Find the correct position to insert the new tab
+                    const newNumber = counter;
+                    let insertBefore = null;
+                    
+                    for (const tab of sheetsContainer.children) {
+                        const match = tab.textContent.match(/Sheet(\d+)/);
+                        if (match && parseInt(match[1]) > newNumber) {
+                            insertBefore = tab;
+                            break;
+                        }
+                    }
+
+                    const newTab = document.createElement('div');
+                    newTab.className = 'sheet-tab active';
+                    newTab.setAttribute('data-sheet', sheetName);
+                    newTab.onclick = () => changeSheet(sheetName);
+                    newTab.oncontextmenu = (e) => showSheetMenu(e, sheetName);
+                    newTab.textContent = sheetName;
+                    
+                    // Remove active class from other tabs
+                    document.querySelectorAll('.sheet-tab.active').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    
+                    if (insertBefore) {
+                        sheetsContainer.insertBefore(newTab, insertBefore);
+                    } else {
+                        sheetsContainer.appendChild(newTab);
+                    }
+
+                    // Initialize empty sheet data
+                    currentSheet = sheetName;
+                    currentSheetData = { data: [] };
+                    updateTableContent([]);
+                    
+                    // Update URL
+                    const url = new URL(window.location);
+                    url.searchParams.set('sheet_name', sheetName);
+                    window.history.pushState({}, '', url);
                 } else {
                     const error = await response.json();
                     console.error('Error:', error);
                     
-                    // If sheet exists, try the next number
                     if (error.detail && error.detail.includes('already exists')) {
                         counter++;
                         createNewSheet();
@@ -947,6 +1356,231 @@
                     addEmptyRows();
                 }
             }, 100);
+        });
+
+        // Update sheet tabs to show active state correctly
+        function updateSheetTabs(activeName) {
+            document.querySelectorAll('.sheet-tab').forEach(tab => {
+                if (tab.getAttribute('data-sheet') === activeName) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        function showWorksheetMenu(event) {
+            const menu = document.getElementById('worksheetMenu');
+            const rect = event.target.closest('.sheet-hamburger').getBoundingClientRect();
+            
+            // Close any other open menus
+            closeSheetMenu();
+            
+            menu.style.display = 'block';
+            menu.style.left = '20px';  // Fixed left position
+            menu.style.top = `${rect.bottom + 4}px`;
+            
+            // Adjust position if menu would go off screen
+            const menuRect = menu.getBoundingClientRect();
+            if (menuRect.bottom > window.innerHeight) {
+                menu.style.top = `${rect.top - menuRect.height - 4}px`;
+            }
+            
+            event.stopPropagation();
+            
+            setTimeout(() => {
+                document.addEventListener('click', closeWorksheetMenu);
+            }, 0);
+        }
+
+        function closeWorksheetMenu() {
+            document.getElementById('worksheetMenu').style.display = 'none';
+            document.removeEventListener('click', closeWorksheetMenu);
+        }
+
+        let isDragging = false;
+        let startCell = null;
+        let currentCell = null;
+        let selection = null;
+
+        function initDragToExtend() {
+            const table = document.querySelector('table');
+            
+            // Create selection element
+            selection = document.createElement('div');
+            selection.className = 'cell-selection';
+            selection.style.display = 'none';
+            document.querySelector('.table-container').appendChild(selection);
+
+            // Add drag handle to each editable cell
+            document.querySelectorAll('.editable').forEach(cell => {
+                const handle = document.createElement('div');
+                handle.className = 'drag-handle';
+                cell.appendChild(handle);
+
+                handle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    isDragging = true;
+                    startCell = cell;
+                    currentCell = cell;
+                    updateSelection();
+                });
+            });
+
+            // Handle mouse move for selection
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const cell = document.elementFromPoint(e.clientX, e.clientY);
+                if (cell && cell.classList.contains('editable')) {
+                    currentCell = cell;
+                    updateSelection();
+                }
+            });
+
+            // Handle mouse up to end selection
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    if (startCell && currentCell) {
+                        extendValues();
+                    }
+                    selection.style.display = 'none';
+                }
+            });
+        }
+
+        function updateSelection() {
+            if (!startCell || !currentCell) return;
+
+            const startRect = startCell.getBoundingClientRect();
+            const currentRect = currentCell.getBoundingClientRect();
+            const containerRect = document.querySelector('.table-container').getBoundingClientRect();
+
+            const left = Math.min(startRect.left, currentRect.left) - containerRect.left;
+            const top = Math.min(startRect.top, currentRect.top) - containerRect.top;
+            const width = Math.abs(currentRect.left - startRect.left) + currentRect.width;
+            const height = Math.abs(currentRect.top - startRect.top) + currentRect.height;
+
+            selection.style.display = 'block';
+            selection.style.left = `${left}px`;
+            selection.style.top = `${top}px`;
+            selection.style.width = `${width}px`;
+            selection.style.height = `${height}px`;
+        }
+
+        function extendValues() {
+            const startIndex = startCell.cellIndex;
+            const startRow = startCell.parentElement.rowIndex;
+            const endIndex = currentCell.cellIndex;
+            const endRow = currentCell.parentElement.rowIndex;
+
+            const startValue = startCell.textContent;
+
+            // Get all cells in selection
+            const cells = [];
+            for (let i = Math.min(startRow, endRow); i <= Math.max(startRow, endRow); i++) {
+                for (let j = Math.min(startIndex, endIndex); j <= Math.max(startIndex, endIndex); j++) {
+                    const cell = document.querySelector(`tr:nth-child(${i + 1}) td:nth-child(${j + 1})`);
+                    if (cell && cell !== startCell) {
+                        cells.push(cell);
+                    }
+                }
+            }
+
+            // Update all cells with the start value
+            cells.forEach(cell => {
+                cell.textContent = startValue;
+                // Trigger cell update to backend
+                const range = `${String.fromCharCode(65 + cell.cellIndex - 1)}${cell.parentElement.rowIndex}`;
+                updateCellValue(range, startValue);
+            });
+        }
+
+        async function updateCellValue(range, value) {
+            try {
+                await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/cell`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ range, value })
+                });
+            } catch (error) {
+                console.error('Error updating cell:', error);
+            }
+        }
+
+        // Initialize drag to extend functionality
+        document.addEventListener('DOMContentLoaded', initDragToExtend);
+
+        function initColumnResize() {
+            const table = document.querySelector('table');
+            const headers = table.querySelectorAll('th');
+            let isResizing = false;
+            let currentHeader = null;
+            let startX;
+            let startWidth;
+
+            // Add resize handles to all headers except the last one
+            headers.forEach((header, index) => {
+                if (index < headers.length - 1) {  // Skip last column
+                    const handle = document.createElement('div');
+                    handle.className = 'resize-handle';
+                    header.appendChild(handle);
+
+                    handle.addEventListener('mousedown', startResize);
+                }
+            });
+
+            function startResize(e) {
+                isResizing = true;
+                currentHeader = e.target.parentElement;
+                startX = e.pageX;
+                startWidth = currentHeader.offsetWidth;
+
+                // Add resizing class for visual feedback
+                document.querySelector('.table-container').classList.add('resizing');
+                e.target.classList.add('active');
+
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('mouseup', stopResize);
+
+                e.preventDefault(); // Prevent text selection
+            }
+
+            function resize(e) {
+                if (!isResizing) return;
+
+                const diff = e.pageX - startX;
+                const newWidth = Math.max(50, startWidth + diff); // Minimum width of 50px
+                
+                // Update column width
+                currentHeader.style.width = `${newWidth}px`;
+                
+                // Update all cells in this column
+                const colIndex = Array.from(currentHeader.parentElement.children).indexOf(currentHeader);
+                const cells = table.querySelectorAll(`td:nth-child(${colIndex + 1})`);
+                cells.forEach(cell => {
+                    cell.style.width = `${newWidth}px`;
+                });
+            }
+
+            function stopResize() {
+                if (!isResizing) return;
+
+                isResizing = false;
+                document.querySelector('.table-container').classList.remove('resizing');
+                document.querySelectorAll('.resize-handle.active').forEach(handle => {
+                    handle.classList.remove('active');
+                });
+
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+        }
+
+        // Initialize column resize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initColumnResize();
         });
     </script>
 </body>

@@ -49,40 +49,139 @@ async def view_android_sheet(request: Request, sheet_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 # iOS Endpoints
+@router.get("/ios/data/{sheet_id}")
+async def get_ios_sheet_data(sheet_id: str, sheet_name: str = None):
+    """Get iOS sheet data"""
+    try:
+        return await SheetsService.get_sheet_data(sheet_id, sheet_name)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 @router.get("/ios/list/{sheet_id}")
 async def get_ios_sheets(sheet_id: str):
     """Get all sheets in iOS spreadsheet"""
-    return await SheetsService.get_all_sheets(sheet_id)
-
-@router.get("/ios/data/{sheet_id}")
-async def get_ios_sheet_data(sheet_id: str, sheet_name: str = None):
-    """Get data from iOS sheet"""
-    return await SheetsService.get_sheet_data(sheet_id, sheet_name)
-
-@router.get("/ios/view/{sheet_id}")
-async def view_ios_sheet(request: Request, sheet_id: str):
-    """View iOS sheet in HTML format"""
     try:
-        sheets = await SheetsService.get_all_sheets(sheet_id)
-        all_sheets_data = {}
-        
-        # Get data from all sheets
-        for sheet_name in sheets["sheets"]:
-            sheet_data = await SheetsService.get_sheet_data(sheet_id, sheet_name)
-            all_sheets_data[sheet_name] = sheet_data["data"]
-        
-        return templates.TemplateResponse(
-            "sheet_view.html",
-            {
-                "request": request, 
-                "all_data": all_sheets_data,
-                "sheets": sheets["sheets"],
-                "platform": "iOS",
-                "sheet_id": sheet_id
-            }
-        )
+        return await SheetsService.get_all_sheets(sheet_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@router.post("/ios/{sheet_id}/cell")
+async def update_ios_cell(sheet_id: str, cell_data: CellUpdate):
+    """Update iOS sheet cell"""
+    try:
+        return await SheetsService.update_cell(sheet_id, cell_data.range, cell_data.value)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ios/{sheet_id}/row")
+async def add_ios_row(sheet_id: str, values: List[str]):
+    """Add a new row to iOS sheet"""
+    try:
+        return await SheetsService.append_row(sheet_id, values)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/ios/{sheet_id}/row/{row_number}")
+async def delete_ios_row(sheet_id: str, row_number: int):
+    """Delete a row from iOS sheet"""
+    try:
+        return await SheetsService.delete_row(sheet_id, row_number)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ios/{sheet_id}/new-sheet")
+async def create_ios_sheet(sheet_id: str, sheet_info: NewSheet):
+    """Create a new iOS sheet"""
+    try:
+        return await SheetsService.create_new_sheet(sheet_id, sheet_info.title)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/ios/{sheet_id}/sheet/{sheet_name}")
+async def delete_ios_sheet(sheet_id: str, sheet_name: str):
+    """Delete an iOS sheet"""
+    try:
+        return await SheetsService.delete_sheet(sheet_id, sheet_name)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ios/{sheet_id}/rename")
+async def rename_ios_sheet(sheet_id: str, data: dict):
+    """Rename an iOS sheet"""
+    try:
+        return await SheetsService.rename_sheet(
+            sheet_id, 
+            data["old_name"], 
+            data["new_name"]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ios/{sheet_id}/duplicate")
+async def duplicate_ios_sheet(sheet_id: str, data: dict):
+    """Duplicate an iOS sheet"""
+    try:
+        return await SheetsService.duplicate_sheet(
+            sheet_id,
+            data["source_name"],
+            data["new_name"]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ios/{sheet_id}/format")
+async def format_ios_cell(sheet_id: str, format_data: dict):
+    """Update iOS cell formatting"""
+    try:
+        return await SheetsService.format_cell(
+            sheet_id,
+            format_data["range"],
+            format_data["format"]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# API Testing Endpoints
+@router.get("/api/data/{sheet_id}")
+async def get_api_sheet_data(sheet_id: str, sheet_name: str = None):
+    """Get API testing sheet data"""
+    return await SheetsService.get_sheet_data(sheet_id, sheet_name)
+
+@router.post("/api/{sheet_id}/cell")
+async def update_api_cell(sheet_id: str, cell_data: dict):
+    """Update API sheet cell"""
+    return await SheetsService.update_cell(sheet_id, cell_data["range"], cell_data["value"])
+
+@router.post("/api/{sheet_id}/new-sheet")
+async def create_api_sheet(sheet_id: str, data: dict):
+    """Create new API sheet"""
+    return await SheetsService.create_sheet(sheet_id, data["title"])
+
+@router.delete("/api/{sheet_id}/sheet/{sheet_name}")
+async def delete_api_sheet(sheet_id: str, sheet_name: str):
+    """Delete API sheet"""
+    return await SheetsService.delete_sheet(sheet_id, sheet_name)
+
+# Web Testing Endpoints
+@router.get("/web/data/{sheet_id}")
+async def get_web_sheet_data(sheet_id: str, sheet_name: str = None):
+    """Get web testing sheet data"""
+    return await SheetsService.get_sheet_data(sheet_id, sheet_name)
+
+@router.post("/web/{sheet_id}/cell")
+async def update_web_cell(sheet_id: str, cell_data: dict):
+    """Update web sheet cell"""
+    return await SheetsService.update_cell(sheet_id, cell_data["range"], cell_data["value"])
+
+@router.post("/web/{sheet_id}/new-sheet")
+async def create_web_sheet(sheet_id: str, data: dict):
+    """Create new web sheet"""
+    return await SheetsService.create_sheet(sheet_id, data["title"])
+
+@router.delete("/web/{sheet_id}/sheet/{sheet_name}")
+async def delete_web_sheet(sheet_id: str, sheet_name: str):
+    """Delete web sheet"""
+    return await SheetsService.delete_sheet(sheet_id, sheet_name)
 
 # Common operations with platform-specific routes
 @router.post("/{platform}/{sheet_id}/cell")
@@ -134,4 +233,61 @@ async def delete_sheet(platform: str, sheet_id: str, sheet_name: str):
 @router.post("/{platform}/{sheet_id}/format")
 async def format_cell(platform: str, sheet_id: str, format_data: dict):
     """Update cell formatting"""
-    return await SheetsService.format_cell(sheet_id, format_data["range"], format_data["format"]) 
+    return await SheetsService.format_cell(sheet_id, format_data["range"], format_data["format"])
+
+@router.get("/")
+async def sheet_home(request: Request):
+    """Landing page to select platform"""
+    return templates.TemplateResponse(
+        "platform_select.html",
+        {
+            "request": request,
+            "platforms": [
+                {
+                    "name": "Android Testing",
+                    "url": "/api/v1/sheets/android/view/" + settings.ANDROID_SHEET_ID,
+                    "icon": "📱"
+                },
+                {
+                    "name": "iOS Testing",
+                    "url": "/api/v1/sheets/ios/view/" + settings.IOS_SHEET_ID,
+                    "icon": "🍎"
+                },
+                {
+                    "name": "API Testing",
+                    "url": "/api/v1/sheets/api/view/" + settings.API_SHEET_ID,
+                    "icon": "🔌"
+                },
+                {
+                    "name": "Web Testing",
+                    "url": "/api/v1/sheets/web/view/" + settings.WEB_SHEET_ID,
+                    "icon": "🌐"
+                }
+            ]
+        }
+    )
+
+@router.get("/{platform}/view/{sheet_id}")
+async def view_sheet(platform: str, sheet_id: str, request: Request, sheet_name: str = None):
+    """View sheet based on platform"""
+    template_map = {
+        "ios": "ios_sheet_view.html",
+        "api": "api_sheet_view.html",
+        "web": "web_sheet_view.html",
+        "android": "sheet_view.html"
+    }
+    
+    template_name = template_map.get(platform.lower(), "sheet_view.html")
+    sheets = await SheetsService.list_sheets(sheet_id)
+    current_sheet = sheet_name or sheets[0] if sheets else None
+    
+    return templates.TemplateResponse(
+        template_name,
+        {
+            "request": request,
+            "sheet_id": sheet_id,
+            "sheets": sheets,
+            "current_sheet": current_sheet,
+            "platform": platform
+        }
+    ) 

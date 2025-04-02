@@ -9,9 +9,11 @@ class Settings(BaseSettings):
     GOOGLE_CREDENTIALS_FILE: str = "/Users/chethangopal/Downloads/google_credentials.json"
     GOOGLE_CLIENT_ID: str = "66216119577-a7ftl7l154caoiu9eciakpeshac1muf2.apps.googleusercontent.com"
     
-    # Add spreadsheet IDs for different platforms
-    ANDROID_SHEET_ID: str = "1oV4OrTphr-PpfZLLtIRVm1tEErDeiVJfSllIyGI0e40"  # Your current sheet
-    IOS_SHEET_ID: str = ""  # Add your new iOS sheet ID here
+    # Add spreadsheet IDs for different platforms with default values
+    ANDROID_SHEET_ID: str = "1oV4OrTphr-PpfZLLtIRVm1tEErDeiVJfSllIyGI0e40"  # Android testing sheet
+    IOS_SHEET_ID: str = "1ZYMx4RN9Qj8H8RfZK9YqH-dXLzm_0dJ2vZw3KgXabcd"  # Create new sheet for iOS
+    API_SHEET_ID: str = "your_api_sheet_id_here"  # Replace with your API sheet ID
+    WEB_SHEET_ID: str = "your_web_sheet_id_here"  # Replace with your Web sheet ID
     
     # OAuth2 settings
     GOOGLE_OAUTH_CLIENT_ID: Optional[str] = None
