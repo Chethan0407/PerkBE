@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import sheets
+from app.api.endpoints import sheets, release_plans
+from app.models.database import Base
+from app.db.database import engine
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -13,8 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the router directly
+# Include the routers
 app.include_router(sheets.router, prefix="/api/v1/sheets")
+app.include_router(release_plans.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

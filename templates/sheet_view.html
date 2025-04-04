@@ -658,13 +658,20 @@
             height: 100%;
             cursor: col-resize;
             z-index: 11;
+            background: transparent;
+            transition: background-color 0.2s;
         }
 
         .resize-handle:hover,
         .resize-handle.active {
             background-color: #1a73e8;
-            width: 2px;
-            right: -1px;
+            width: 4px;
+            right: -2px;
+        }
+
+        /* Make resize handles more visible on header hover */
+        th:hover .resize-handle {
+            background-color: #dadce0;
         }
 
         th {
@@ -683,21 +690,17 @@
             <thead>
                 <tr>
                     <th class="row-number">#</th>
-                    <th>Test Case ID
-                        <div class="resize-handle"></div>
-                    </th>
-                    <th>Module
-                        <div class="resize-handle"></div>
-                    </th>
-                    <th>Test Case</th>
-                    <th>Expected Outcome</th>
-                    <th>Actual Outcome</th>
-                    <th>Priority</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Execution Date</th>
-                    <th>Test Result</th>
-                    <th>Comments</th>
+                    <th>Test Case ID<div class="resize-handle"></div></th>
+                    <th>Module<div class="resize-handle"></div></th>
+                    <th>Test Case<div class="resize-handle"></div></th>
+                    <th>Expected Outcome<div class="resize-handle"></div></th>
+                    <th>Actual Outcome<div class="resize-handle"></div></th>
+                    <th>Priority<div class="resize-handle"></div></th>
+                    <th>Assigned To<div class="resize-handle"></div></th>
+                    <th>Status<div class="resize-handle"></div></th>
+                    <th>Execution Date<div class="resize-handle"></div></th>
+                    <th>Test Result<div class="resize-handle"></div></th>
+                    <th>Comments<div class="resize-handle"></div></th>
                     <th>Actions</th>
                 </tr>
             </thead>

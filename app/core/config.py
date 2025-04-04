@@ -6,6 +6,10 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Perk Backend"
     API_V1_STR: str = "/api/v1"
+    
+    # Database settings
+    DATABASE_URL: str = "postgresql://qa_user:qa_password@localhost:5432/qa_release_db"
+    
     GOOGLE_CREDENTIALS_FILE: str = "/Users/chethangopal/Downloads/google_credentials.json"
     GOOGLE_CLIENT_ID: str = "66216119577-a7ftl7l154caoiu9eciakpeshac1muf2.apps.googleusercontent.com"
     
