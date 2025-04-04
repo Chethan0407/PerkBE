@@ -7,9 +7,6 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Perk Backend"
     API_V1_STR: str = "/api/v1"
     
-    # Database settings
-    DATABASE_URL: str = "postgresql://qa_user:qa_password@localhost:5432/qa_release_db"
-    
     GOOGLE_CREDENTIALS_FILE: str = "/Users/chethangopal/Downloads/google_credentials.json"
     GOOGLE_CLIENT_ID: str = "66216119577-a7ftl7l154caoiu9eciakpeshac1muf2.apps.googleusercontent.com"
     
@@ -19,10 +16,9 @@ class Settings(BaseSettings):
     API_SHEET_ID: str = "your_api_sheet_id_here"  # Replace with your API sheet ID
     WEB_SHEET_ID: str = "your_web_sheet_id_here"  # Replace with your Web sheet ID
     
-    # OAuth2 settings
+    # OAuth settings (optional)
     GOOGLE_OAUTH_CLIENT_ID: Optional[str] = None
     GOOGLE_OAUTH_CLIENT_SECRET: Optional[str] = None
-    OAUTH_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/callback"
     
     # Using ClassVar for class-level constants that shouldn't be treated as settings
     SCOPES: ClassVar[List[str]] = [
@@ -44,5 +40,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"  # This will ignore any extra fields in environment variables
 
 settings = Settings() 

@@ -268,26 +268,21 @@ async def sheet_home(request: Request):
     )
 
 @router.get("/{platform}/view/{sheet_id}")
-async def view_sheet(platform: str, sheet_id: str, request: Request, sheet_name: str = None):
+async def view_sheet(platform: str, sheet_id: str, request: Request):
     """View sheet based on platform"""
-    template_map = {
-        "ios": "ios_sheet_view.html",
-        "api": "api_sheet_view.html",
-        "web": "web_sheet_view.html",
-        "android": "sheet_view.html"
-    }
-    
-    template_name = template_map.get(platform.lower(), "sheet_view.html")
-    sheets = await SheetsService.list_sheets(sheet_id)
-    current_sheet = sheet_name or sheets[0] if sheets else None
-    
-    return templates.TemplateResponse(
-        template_name,
-        {
-            "request": request,
-            "sheet_id": sheet_id,
-            "sheets": sheets,
-            "current_sheet": current_sheet,
-            "platform": platform
-        }
-    ) 
+    try:
+        sheets = await SheetsService.get_all_sheets(sheet_id)
+        sheet_data = await SheetsService.get_sheet_data(sheet_id)
+        
+        return templates.TemplateResponse(
+            "sheet_view.html",
+            {
+                "request": request,
+                "data": sheet_data["data"],
+                "sheets": sheets["sheets"],
+                "platform": platform.capitalize(),
+                "sheet_id": sheet_id
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e)) 

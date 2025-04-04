@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Sheet View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         /* Prevent layout shifts */
         body {
@@ -67,7 +68,11 @@
             position: relative;
             padding: 8px 12px;
             box-sizing: border-box;
-            height: 40px;  /* Fixed height to prevent jumps */
+            height: 40px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: white;
         }
 
         .editable:hover {
@@ -75,14 +80,23 @@
         }
 
         .editable.editing {
-            padding: 0 !important;  /* Ensure consistent padding */
+            padding: 8px 12px;
             outline: 2px solid #4285f4;
             outline-offset: -2px;
             background: white;
-            border-color: transparent;
-            box-shadow: 0 2px 6px rgba(66, 133, 244, 0.2);
-            position: relative;
             z-index: 2;
+        }
+
+        .editable.editing input {
+            margin: 0;
+            padding: inherit;
+            border: none;
+            outline: none;
+            background: white;
+            font: inherit;
+            color: inherit;
+            width: 100%;
+            height: 100%;
         }
 
         .editable.editing:hover {
@@ -682,6 +696,65 @@
             cursor: col-resize;
             user-select: none;
         }
+
+        /* Bottom sheet styles */
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .bottom-sheet.open {
+            transform: translateY(0);
+        }
+
+        .sheet-drag-handle {
+            width: 40px;
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            margin: 8px auto;
+        }
+
+        .bottom-sheet-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bottom-sheet-content {
+            padding: 16px;
+        }
+
+        /* Menu items */
+        .menu-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .menu-item i {
+            margin-right: 12px;
+            color: #5f6368;
+        }
     </style>
 </head>
 <body>
@@ -784,6 +857,29 @@
         {% endfor %}
     </div>
 
+    <!-- Bottom Sheet -->
+    <div class="bottom-sheet" id="menuBottomSheet">
+        <div class="sheet-drag-handle"></div>
+        <div class="bottom-sheet-header">
+            <h3>Menu</h3>
+            <button onclick="closeBottomSheet()" style="border: none; background: none; cursor: pointer;">✕</button>
+        </div>
+        <div class="bottom-sheet-content">
+            <div class="menu-item" onclick="handleMenuAction('new')">
+                <i>📄</i> New Sheet
+            </div>
+            <div class="menu-item" onclick="handleMenuAction('rename')">
+                <i>✏️</i> Rename
+            </div>
+            <div class="menu-item" onclick="handleMenuAction('duplicate')">
+                <i>📋</i> Make a copy
+            </div>
+            <div class="menu-item" onclick="handleMenuAction('delete')">
+                <i>🗑️</i> Delete
+            </div>
+        </div>
+    </div>
+
     <script>
         const sheetId = window.location.pathname.split('/').pop();
         let currentSheetData = {};
@@ -792,21 +888,48 @@
         async function editCell(cell) {
             if (cell.classList.contains('editing')) return;
 
+            // Store original content and styles
             const originalContent = cell.textContent;
+            const originalStyles = window.getComputedStyle(cell);
+
+            // Create input with exact same styling as the cell
             const input = document.createElement('input');
-            
             input.value = originalContent;
-            cell.textContent = '';
-            cell.appendChild(input);
+            input.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                padding: ${originalStyles.padding};
+                font: ${originalStyles.font};
+                color: ${originalStyles.color};
+                background: white;
+                border: none;
+                outline: none;
+                box-sizing: border-box;
+                z-index: 1;
+            `;
+
+            // Add editing class but keep original text visible
             cell.classList.add('editing');
-            
+            cell.appendChild(input);
+
+            // Focus input
             input.focus();
             input.select();
 
-            input.addEventListener('blur', async () => {
-                const newValue = input.value;
+            const finishEditing = async (newValue, moveTo = null) => {
+                // Remove input first
+                input.remove();
+                
+                // Update content
+                cell.textContent = newValue;
+                cell.classList.remove('editing');
+
+                // Send update to server
                 const rowIndex = cell.parentElement.rowIndex;
-                const colIndex = cell.cellIndex - 1; // Adjust for row number column
+                const colIndex = cell.cellIndex - 1;
                 const range = `${String.fromCharCode(65 + colIndex)}${rowIndex}`;
 
                 try {
@@ -816,17 +939,61 @@
                         body: JSON.stringify({ range, value: newValue })
                     });
 
-                    if (response.ok) {
-                        cell.textContent = newValue;
-                    } else {
+                    if (!response.ok) {
                         cell.textContent = originalContent;
                     }
                 } catch (error) {
-                    cell.textContent = originalContent;
                     console.error('Error:', error);
+                    cell.textContent = originalContent;
                 }
 
-                cell.classList.remove('editing');
+                // Move to next cell if specified
+                if (moveTo) {
+                    editCell(moveTo);
+                }
+            };
+
+            // Handle blur event
+            input.addEventListener('blur', () => {
+                finishEditing(input.value);
+            });
+
+            // Handle keyboard navigation
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' || e.key === 'Enter') {
+                    e.preventDefault();
+                    
+                    const currentRow = cell.parentElement;
+                    let nextCell = null;
+
+                    if (e.key === 'Enter') {
+                        // Move down
+                        const nextRow = currentRow.nextElementSibling;
+                        if (nextRow) {
+                            nextCell = nextRow.cells[cell.cellIndex];
+                        }
+                    } else {
+                        // Tab navigation
+                        nextCell = e.shiftKey 
+                            ? cell.previousElementSibling 
+                            : cell.nextElementSibling;
+
+                        if (!nextCell && !e.shiftKey && currentRow.nextElementSibling) {
+                            const nextRow = currentRow.nextElementSibling;
+                            nextCell = nextRow.querySelector('.editable');
+                        } else if (!nextCell && e.shiftKey && currentRow.previousElementSibling) {
+                            const prevRow = currentRow.previousElementSibling;
+                            const editableCells = prevRow.querySelectorAll('.editable');
+                            nextCell = editableCells[editableCells.length - 1];
+                        }
+                    }
+
+                    if (nextCell && nextCell.classList.contains('editable')) {
+                        finishEditing(input.value, nextCell);
+                    } else {
+                        finishEditing(input.value);
+                    }
+                }
             });
         }
 
@@ -1584,6 +1751,68 @@
         // Initialize column resize on page load
         document.addEventListener('DOMContentLoaded', () => {
             initColumnResize();
+        });
+
+        function openBottomSheet() {
+            document.getElementById('menuBottomSheet').classList.add('open');
+        }
+
+        function closeBottomSheet() {
+            document.getElementById('menuBottomSheet').classList.remove('open');
+        }
+
+        function handleMenuAction(action) {
+            const sheetId = '{{ sheet_id }}';
+            switch(action) {
+                case 'new':
+                    // Call your API endpoint for creating new sheet
+                    break;
+                case 'rename':
+                    // Call your API endpoint for renaming
+                    break;
+                case 'duplicate':
+                    // Call your API endpoint for duplicating
+                    break;
+                case 'delete':
+                    if (confirm('Are you sure you want to delete this sheet?')) {
+                        // Call your API endpoint for deleting
+                    }
+                    break;
+            }
+            closeBottomSheet();
+        }
+
+        // Close sheet when clicking outside
+        document.addEventListener('click', (e) => {
+            const sheet = document.getElementById('menuBottomSheet');
+            if (!sheet.contains(e.target)) {
+                closeBottomSheet();
+            }
+        });
+
+        // Add drag to dismiss functionality
+        let startY;
+        let currentY;
+        const sheet = document.getElementById('menuBottomSheet');
+
+        sheet.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        });
+
+        sheet.addEventListener('touchmove', (e) => {
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            if (diff > 0) { // Only allow dragging down
+                sheet.style.transform = `translateY(${diff}px)`;
+            }
+        });
+
+        sheet.addEventListener('touchend', () => {
+            if (currentY - startY > 100) { // If dragged down more than 100px
+                closeBottomSheet();
+            } else {
+                sheet.style.transform = '';
+            }
         });
     </script>
 </body>
