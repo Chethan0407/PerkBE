@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import sheets
+from app.api.v1.endpoints import sheets, auth
+from app.core.config import settings
 
-app = FastAPI()
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+)
 
-# Add CORS middleware
+# Set up CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,9 +18,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the router
-app.include_router(sheets.router, prefix="/api/v1/sheets")
+# Include routers
+app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(sheets.router, prefix=settings.API_V1_STR, tags=["sheets"])
 
 @app.get("/")
-async def root():
-    return {"message": "Google Sheets Integration Backend Running"} 
+def read_root():
+    return {"message": "Welcome to PerkBE API"} 

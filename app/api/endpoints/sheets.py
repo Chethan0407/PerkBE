@@ -2,7 +2,8 @@ from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from ...services.sheets import SheetsService
-from ...core.config import settings
+from ...models.database import Sheet
+from ...db.session import get_db
 from typing import List
 from pydantic import BaseModel
 import asyncio
@@ -16,6 +17,28 @@ class CellUpdate(BaseModel):
 
 class NewSheet(BaseModel):
     title: str
+    platform: str  # android, ios, web, api
+
+@router.post("/create")
+async def create_sheet(sheet_info: NewSheet):
+    """Create a new sheet with our own ID system"""
+    db = next(get_db())
+    sheet = Sheet(
+        title=sheet_info.title,
+        platform=sheet_info.platform,
+        data=[],  # Initialize with empty data
+        sheets=["Sheet1"]  # Initialize with default sheet
+    )
+    db.add(sheet)
+    db.commit()
+    db.refresh(sheet)
+    
+    return {
+        "status": "success",
+        "sheet_id": sheet.id,
+        "title": sheet.title,
+        "platform": sheet.platform
+    }
 
 # Android Endpoints
 @router.get("/android/list/{sheet_id}")
@@ -245,22 +268,22 @@ async def sheet_home(request: Request):
             "platforms": [
                 {
                     "name": "Android Testing",
-                    "url": "/api/v1/sheets/android/view/" + settings.ANDROID_SHEET_ID,
+                    "url": "/api/v1/sheets/android/view/",
                     "icon": "📱"
                 },
                 {
                     "name": "iOS Testing",
-                    "url": "/api/v1/sheets/ios/view/" + settings.IOS_SHEET_ID,
-                    "icon": "🍎"
+                    "url": "/api/v1/sheets/ios/view/",
+                    "icon": "📱"
                 },
                 {
                     "name": "API Testing",
-                    "url": "/api/v1/sheets/api/view/" + settings.API_SHEET_ID,
+                    "url": "/api/v1/sheets/api/view/",
                     "icon": "🔌"
                 },
                 {
                     "name": "Web Testing",
-                    "url": "/api/v1/sheets/web/view/" + settings.WEB_SHEET_ID,
+                    "url": "/api/v1/sheets/web/view/",
                     "icon": "🌐"
                 }
             ]

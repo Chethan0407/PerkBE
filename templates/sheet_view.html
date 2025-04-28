@@ -1425,7 +1425,7 @@
             const range = `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`;
 
             try {
-                // Update cell format in Google Sheets
+                // Update cell format in local database
                 const response = await fetch(`/api/v1/sheets/{{ platform.lower() }}/${sheetId}/format`, {
                     method: 'POST',
                     headers: {
